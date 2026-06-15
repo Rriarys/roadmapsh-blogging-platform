@@ -1,0 +1,6 @@
+@BloggingPlatform.API_HostAddress = http://localhost:5104
+
+GET {{BloggingPlatform.API_HostAddress}}
+Accept: application/json
+
+###
