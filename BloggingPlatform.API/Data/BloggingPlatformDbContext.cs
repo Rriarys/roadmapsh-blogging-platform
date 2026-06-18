@@ -14,14 +14,7 @@ public class BloggingPlatformDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        // Configure the Post entity
-        modelBuilder.Entity<Post>(entity =>
-        {
-            entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Content).IsRequired().HasMaxLength(2000);
-            entity.Property(e => e.Category).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.CreatedAt).IsRequired();
-            entity.Property(e => e.UpdatedAt).IsRequired();
-        });
+
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(BloggingPlatformDbContext).Assembly);
     }
 }

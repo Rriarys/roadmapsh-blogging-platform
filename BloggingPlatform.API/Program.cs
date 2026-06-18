@@ -1,4 +1,5 @@
 using BloggingPlatform.API.Data;
+using BloggingPlatform.API.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,8 @@ builder.Services.AddDbContext<BloggingPlatformDbContext>(options =>
     options.UseSqlite(SQLiteConnectionString));
 
 var app = builder.Build();
+
+app.Services.ApplyMigrations();
 
 app.MapControllers();
 
