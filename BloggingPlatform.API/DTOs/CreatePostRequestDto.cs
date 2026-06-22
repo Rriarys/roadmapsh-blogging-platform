@@ -1,4 +1,4 @@
-﻿namespace BloggingPlatform.API.Models.DTOs;
+﻿namespace BloggingPlatform.API.DTOs;
 
 public record CreatePostRequestDto(
     string Title,

@@ -1,4 +1,4 @@
-﻿namespace BloggingPlatform.API.Models.DTOs;
+﻿namespace BloggingPlatform.API.DTOs;
 
 // GET /posts?page=2&pageSize=10&term=tech
 public record GetPostsQuery(

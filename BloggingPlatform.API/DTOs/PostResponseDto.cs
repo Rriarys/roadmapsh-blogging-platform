@@ -1,6 +1,7 @@
-﻿namespace BloggingPlatform.API.Models.DTOs;
+﻿namespace BloggingPlatform.API.DTOs;
 
 public record PostResponseDto(
+    Guid Id,
     string Title,
     string Content,
     string Category
