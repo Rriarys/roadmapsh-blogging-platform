@@ -1,7 +1,7 @@
 ﻿using BloggingPlatform.API.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BloggingPlatform.API.Data.Extensions;
+namespace BloggingPlatform.API.Data.DataExtensions;
 
 public static class DatabaseExtensions
 {
