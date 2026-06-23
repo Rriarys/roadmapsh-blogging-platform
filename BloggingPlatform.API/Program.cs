@@ -27,7 +27,10 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 
-app.Services.ApplyMigrations();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.Services.ApplyMigrations();
+}
 
 app.MapControllers();
 
