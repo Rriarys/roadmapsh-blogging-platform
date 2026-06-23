@@ -156,13 +156,18 @@ public class PostsEndpointsTests : IClassFixture<CustomWebApplicationFactory<Pro
     public async Task GetPostById_WhenPostExists_Returns200OK() // Scenario 12
     {
         var postId = Guid.NewGuid();
-        SeedDatabase([new Post { Id = postId, Title = "Test", Content = "Content", Category = "Tech", Tags = [], CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }]);
+        var createdAt = new DateTime(2026, 06, 23, 10, 00, 00, DateTimeKind.Utc);
+        var updatedAt = createdAt.AddMinutes(5);
+
+        SeedDatabase([new Post { Id = postId, Title = "Test", Content = "Content", Category = "Tech", Tags = [], CreatedAt = createdAt, UpdatedAt = updatedAt }]);
 
         var response = await _client.GetAsync($"/posts/{postId}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var post = await response.Content.ReadFromJsonAsync<PostResponseDto>();
         Assert.Equal(postId, post!.Id);
+        Assert.Equal(createdAt, post.CreatedAt);
+        Assert.Equal(updatedAt, post.UpdatedAt);
     }
 
     [Fact]
@@ -186,6 +191,12 @@ public class PostsEndpointsTests : IClassFixture<CustomWebApplicationFactory<Pro
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.NotNull(response.Headers.Location);
+        var post = await response.Content.ReadFromJsonAsync<PostResponseDto>();
+        Assert.NotNull(post);
+        Assert.Equal(requestDto.Title, post.Title);
+        Assert.NotEqual(default, post.CreatedAt);
+        Assert.NotEqual(default, post.UpdatedAt);
+        Assert.Equal(post.CreatedAt, post.UpdatedAt);
     }
 
     [Fact]
@@ -229,7 +240,10 @@ public class PostsEndpointsTests : IClassFixture<CustomWebApplicationFactory<Pro
     public async Task UpdatePost_WithValidData_Returns200OK() // Scenario 19
     {
         var postId = Guid.NewGuid();
-        SeedDatabase([new Post { Id = postId, Title = "Old", Content = "Old", Category = "Old", Tags = [], CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }]);
+        var createdAt = new DateTime(2026, 06, 23, 10, 00, 00, DateTimeKind.Utc);
+        var updatedAt = createdAt.AddMinutes(1);
+
+        SeedDatabase([new Post { Id = postId, Title = "Old", Content = "Old", Category = "Old", Tags = [], CreatedAt = createdAt, UpdatedAt = updatedAt }]);
 
         var updateDto = new UpdatePostRequestDto("New Title", "New Content", "New Category", ["new-tag"]);
         var response = await _client.PutAsJsonAsync($"/posts/{postId}", updateDto);
@@ -237,6 +251,8 @@ public class PostsEndpointsTests : IClassFixture<CustomWebApplicationFactory<Pro
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var post = await response.Content.ReadFromJsonAsync<PostResponseDto>();
         Assert.Equal("New Title", post!.Title);
+        Assert.Equal(createdAt, post.CreatedAt);
+        Assert.True(post.UpdatedAt >= updatedAt);
     }
 
     [Fact]

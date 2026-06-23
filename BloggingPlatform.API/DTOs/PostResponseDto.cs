@@ -5,5 +5,7 @@ public record PostResponseDto(
     string Title,
     string Content,
     string Category,
-    List<string> Tags
+    List<string> Tags,
+    DateTime CreatedAt,
+    DateTime UpdatedAt
 );
