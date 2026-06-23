@@ -1,6 +1,87 @@
 @BloggingPlatform.API_HostAddress = http://localhost:5104
 
-GET {{BloggingPlatform.API_HostAddress}}
+### Scenario 1: Get the first page with default values
+# Verifies that page=1 and pageSize=10 are applied automatically by our query record.
+# Expects 10 items and metadata indicating TotalCount = 17.
+GET {{BloggingPlatform.API_HostAddress}}/posts
 Accept: application/json
 
 ###
+
+### Scenario 2: Get the second page with default page size
+# Verifies stable paging offsets.
+# Expects the remaining 7 items from the seeded database.
+GET {{BloggingPlatform.API_HostAddress}}/posts?page=2
+Accept: application/json
+
+###
+
+### Scenario 3: Request a custom small page size
+# Verifies that custom pageSize overrides the default values.
+# Expects exactly 3 items for the first page.
+GET {{BloggingPlatform.API_HostAddress}}/posts?page=1&pageSize=3
+Accept: application/json
+
+###
+
+### Scenario 4: Search term filtering matching Title
+# Verifies wildcard search inside the Title field (case-insensitive).
+# Expects matching posts like "Why learning .NET is awesome" and "Unit testing strategies in .NET".
+GET {{BloggingPlatform.API_HostAddress}}/posts?term=.NET
+Accept: application/json
+
+###
+
+### Scenario 5: Search term filtering matching Content
+# Verifies wildcard search inside the Content field.
+# Expects the post "Principles of clean code" because its content mentions "readable, maintainable, and testable code".
+GET {{BloggingPlatform.API_HostAddress}}/posts?term=readable
+Accept: application/json
+
+###
+
+### Scenario 6: Search term filtering matching Category
+# Verifies wildcard search inside the Category field.
+# Expects 3 posts belonging to the "DevOps" category ("Getting started with Kubernetes", etc.).
+GET {{BloggingPlatform.API_HostAddress}}/posts?term=DevOps
+Accept: application/json
+
+###
+
+### Scenario 7: Search with a non-existent keyword
+# Verifies system behavior when no posts match the query criteria.
+# Expects 200 OK with an empty items array, TotalCount = 0, page = 1, and pageSize = 10.
+GET {{BloggingPlatform.API_HostAddress}}/posts?term=NonExistentWord
+Accept: application/json
+
+###
+
+### Scenario 8: Negative test - Requesting page 0 or negative page
+# Verifies that our model validation or default values catch invalid page numbers.
+# Expects either a 400 Bad Request or auto-fallback to page=1.
+GET {{BloggingPlatform.API_HostAddress}}/posts?page=0
+Accept: application/json
+
+###
+
+### Scenario 9: Negative test - Requesting an excessively large page size
+# Verifies that a client cannot crash the DB by requesting a million records.
+# Expects either a 400 Bad Request or a hard limit capped at a maximum value (e.g., 50 or 100).
+GET {{BloggingPlatform.API_HostAddress}}/posts?pageSize=999999
+Accept: application/json
+
+###
+
+### Scenario 10: Requesting a page that is out of bounds
+# Verifies behavior when the page number is valid, but exceeds the total pages available (we only have 2 pages).
+# Expects 200 OK with an empty items collection, but TotalCount should still show 17.
+GET {{BloggingPlatform.API_HostAddress}}/posts?page=5
+Accept: application/json
+
+###
+
+### Scenario 11: Negative test - Requesting with an excessively long search term
+# Verifies that our model validation catches bad requests with huge search strings before touching the database.
+# Expects a 400 Bad Request with a clear validation error message.
+GET {{BloggingPlatform.API_HostAddress}}/posts?term=ThisIsAnExcessivelyLongSearchTermThatExceedsTheMaximumAllowedLimitOfOneHundredsCharactersToProtectOurDatabaseFromPotentialDenialOfServiceAttacks
+Accept: application/json

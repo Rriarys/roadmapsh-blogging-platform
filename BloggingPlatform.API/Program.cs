@@ -1,5 +1,5 @@
 using BloggingPlatform.API.Data;
-using BloggingPlatform.API.Data.Extensions;
+using BloggingPlatform.API.Data.DataExtensions;
 using BloggingPlatform.API.Repositories;
 using BloggingPlatform.API.Services;
 using Microsoft.EntityFrameworkCore;

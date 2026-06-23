@@ -45,6 +45,8 @@ public class PostRepository(BloggingPlatformDbContext dbContext) : IPostReposito
                 post.Content.ToLower().Contains(lowerSearchTerm) ||
                 post.Category.ToLower().Contains(lowerSearchTerm)); // ToLower() - issue for SQLite Db, for other Db not needed
         }
+        // Deterministic ordering for stable paging
+        queryablePosts = queryablePosts.OrderBy(post => post.CreatedAt).ThenBy(post => post.Id);
 
         // Create SQL request to count total items matching the search term
         var totalPostsCount = await queryablePosts.CountAsync();
