@@ -2,6 +2,8 @@
 
 @testId = 4bd6e605-75ad-4e53-827d-3d2b44daf8e7
 
+@testWrongId = ffffffff-ffff-ffff-ffff-ffffffffffff
+
 ### GET /posts
 ### Scenario 1: Get the first page with default values
 # Verifies that page=1 and pageSize=10 are applied automatically by our query record.
@@ -102,7 +104,7 @@ Accept: application/json
 
 ### Scenario 13: Get a single post by identifier (Not Found)
 # Verifies that requesting a non-existent GUID returns a clear 404 Not Found status.
-GET {{BloggingPlatform.API_HostAddress}}/posts/ffffffff-ffff-ffff-ffff-ffffffffffff
+GET {{BloggingPlatform.API_HostAddress}}/posts/{{testWrongId}}
 Accept: application/json
 
 ###
@@ -166,7 +168,7 @@ Content-Type: application/json
 
 ### Scenario 18: Update a post that does not exist (Not Found)
 # Verifies that attempting to update a missing GUID returns a 404 Not Found.
-PUT {{BloggingPlatform.API_HostAddress}}/posts/ffffffff-ffff-ffff-ffff-ffffffffffff
+PUT {{BloggingPlatform.API_HostAddress}}/posts/{{testWrongId}}
 Content-Type: application/json
 
 {
@@ -201,4 +203,33 @@ DELETE {{BloggingPlatform.API_HostAddress}}/posts/{{testId}}
 
 ### Scenario 21: Delete a post that does not exist (Not Found)
 # Verifies that attempting to delete a missing GUID returns a 404 Not Found.
-DELETE {{BloggingPlatform.API_HostAddress}}/posts/ffffffff-ffff-ffff-ffff-ffffffffffff
+DELETE {{BloggingPlatform.API_HostAddress}}/posts/{{testWrongId}}
+
+###
+
+### Test Global Exception Handling Middleware
+### Scenario 22: Test Global Exception Handler (Expects 500 Internal Server Error)
+# Triggers the artificial DEBUG endpoint to verify that our GlobalExceptionHandler 
+# captures unexpected failures and returns a clean 500 ProblemDetails response.
+GET {{BloggingPlatform.API_HostAddress}}/posts/test-fault
+Accept: application/json
+
+###
+
+### Scenario 23: Test Not Found Integrity (Expects 404 Not Found)
+# Verifies that our exception handler doesn't interfere with standard 404 responses.
+GET {{BloggingPlatform.API_HostAddress}}/posts/{{testWrongId}}
+Accept: application/json
+
+###
+
+### Scenario 24: Test Validation Integrity (Expects 400 Bad Request)
+# Verifies that our exception handler doesn't interfere with standard Model Validation.
+POST {{BloggingPlatform.API_HostAddress}}/posts
+Content-Type: application/json
+
+{
+  "title": "",
+  "content": "Valid text",
+  "category": "Tech"
+}

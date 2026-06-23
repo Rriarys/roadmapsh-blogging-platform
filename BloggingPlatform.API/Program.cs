@@ -1,3 +1,4 @@
+using BloggingPlatform.API.Middlewares;
 using BloggingPlatform.API.Data;
 using BloggingPlatform.API.Data.DataExtensions;
 using BloggingPlatform.API.Repositories;
@@ -5,6 +6,9 @@ using BloggingPlatform.API.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddControllers();
 
@@ -20,6 +24,8 @@ builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 app.Services.ApplyMigrations();
 

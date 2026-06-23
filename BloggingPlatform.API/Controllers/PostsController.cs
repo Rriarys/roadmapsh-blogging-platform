@@ -63,4 +63,13 @@ public class PostsController(IPostService postService) : ControllerBase
         // 204 No Content for successful deletion
         return NoContent();
     }
+
+#if DEBUG
+    [HttpGet("test-fault")]
+    public IActionResult TriggerInternalError()
+    {
+        // Explicitly throw a generic exception to verify our global exception middleware
+        throw new InvalidOperationException("Simulated database failure for middleware testing.");
+    }
+#endif
 }
