@@ -1,93 +1,93 @@
 @BloggingPlatform.API_HostAddress = http://localhost:5104
 
-@testId = 4bd6e605-75ad-4e53-827d-3d2b44daf8e7
+@testId = 96d6f728-5ee0-46d8-b902-d2d11c786de4
 
 @testWrongId = ffffffff-ffff-ffff-ffff-ffffffffffff
 
 ### GET /posts
 ### Scenario 1: Get the first page with default values
-# Verifies that page=1 and pageSize=10 are applied automatically by our query record.
-# Expects 10 items and metadata indicating TotalCount = 17.
+# Verifies that page=1 and pageSize=10 are applied automatically by our query record
+# Expects 10 items and metadata indicating TotalCount = 17
 GET {{BloggingPlatform.API_HostAddress}}/posts
 Accept: application/json
 
 ###
 
 ### Scenario 2: Get the second page with default page size
-# Verifies stable paging offsets.
-# Expects the remaining 7 items from the seeded database.
+# Verifies stable paging offsets
+# Expects the remaining 7 items from the seeded database
 GET {{BloggingPlatform.API_HostAddress}}/posts?page=2
 Accept: application/json
 
 ###
 
 ### Scenario 3: Request a custom small page size
-# Verifies that custom pageSize overrides the default values.
-# Expects exactly 3 items for the first page.
+# Verifies that custom pageSize overrides the default values
+# Expects exactly 3 items for the first page
 GET {{BloggingPlatform.API_HostAddress}}/posts?page=1&pageSize=3
 Accept: application/json
 
 ###
 
 ### Scenario 4: Search term filtering matching Title
-# Verifies wildcard search inside the Title field (case-insensitive).
-# Expects matching posts like "Why learning .NET is awesome" and "Unit testing strategies in .NET".
+# Verifies wildcard search inside the Title field (case-insensitive)
+# Expects matching posts like "Why learning .NET is awesome" and "Unit testing strategies in .NET"
 GET {{BloggingPlatform.API_HostAddress}}/posts?term=.NET
 Accept: application/json
 
 ###
 
 ### Scenario 5: Search term filtering matching Content
-# Verifies wildcard search inside the Content field.
-# Expects the post "Principles of clean code" because its content mentions "readable, maintainable, and testable code".
+# Verifies wildcard search inside the Content field
+# Expects the post "Principles of clean code" because its content mentions "readable, maintainable, and testable code"
 GET {{BloggingPlatform.API_HostAddress}}/posts?term=readable
 Accept: application/json
 
 ###
 
 ### Scenario 6: Search term filtering matching Category
-# Verifies wildcard search inside the Category field.
-# Expects 3 posts belonging to the "DevOps" category ("Getting started with Kubernetes", etc.).
+# Verifies wildcard search inside the Category field
+# Expects 3 posts belonging to the "DevOps" category ("Getting started with Kubernetes", etc.)
 GET {{BloggingPlatform.API_HostAddress}}/posts?term=DevOps
 Accept: application/json
 
 ###
 
 ### Scenario 7: Search with a non-existent keyword
-# Verifies system behavior when no posts match the query criteria.
-# Expects 200 OK with an empty items array, TotalCount = 0, page = 1, and pageSize = 10.
+# Verifies system behavior when no posts match the query criteria
+# Expects 200 OK with an empty items array, TotalCount = 0, page = 1, and pageSize = 10
 GET {{BloggingPlatform.API_HostAddress}}/posts?term=NonExistentWord
 Accept: application/json
 
 ###
 
 ### Scenario 8: Negative test - Requesting page 0 or negative page
-# Verifies that our model validation or default values catch invalid page numbers.
-# Expects either a 400 Bad Request or auto-fallback to page=1.
+# Verifies that our model validation or default values catch invalid page numbers
+# Expects either a 400 Bad Request or auto-fallback to page=1
 GET {{BloggingPlatform.API_HostAddress}}/posts?page=0
 Accept: application/json
 
 ###
 
 ### Scenario 9: Negative test - Requesting an excessively large page size
-# Verifies that a client cannot crash the DB by requesting a million records.
-# Expects either a 400 Bad Request or a hard limit capped at a maximum value (e.g., 50 or 100).
+# Verifies that a client cannot crash the DB by requesting a million records
+# Expects either a 400 Bad Request or a hard limit capped at a maximum value (e.g., 50 or 100)
 GET {{BloggingPlatform.API_HostAddress}}/posts?pageSize=999999
 Accept: application/json
 
 ###
 
 ### Scenario 10: Requesting a page that is out of bounds
-# Verifies behavior when the page number is valid, but exceeds the total pages available (we only have 2 pages).
-# Expects 200 OK with an empty items collection, but TotalCount should still show 17.
+# Verifies behavior when the page number is valid, but exceeds the total pages available (we only have 2 pages)
+# Expects 200 OK with an empty items collection, but TotalCount should still show 17
 GET {{BloggingPlatform.API_HostAddress}}/posts?page=5
 Accept: application/json
 
 ###
 
 ### Scenario 11: Negative test - Requesting with an excessively long search term
-# Verifies that our model validation catches bad requests with huge search strings before touching the database.
-# Expects a 400 Bad Request with a clear validation error message.
+# Verifies that our model validation catches bad requests with huge search strings before touching the database
+# Expects a 400 Bad Request with a clear validation error message
 GET {{BloggingPlatform.API_HostAddress}}/posts?term=ThisIsAnExcessivelyLongSearchTermThatExceedsTheMaximumAllowedLimitOfOneHundredsCharactersToProtectOurDatabaseFromPotentialDenialOfServiceAttacks
 Accept: application/json
 
@@ -95,15 +95,15 @@ Accept: application/json
 
 ### GET /posts/{id}
 ### Scenario 12: Get a single post by identifier (Success)
-# Verifies that GET /posts/{id} returns 200 OK with correct DTO fields.
-# Note: Replace the GUID below with a real ID copied from the GET /posts response.
+# Verifies that GET /posts/{id} returns 200 OK with correct DTO fields
+# Note: Replace the GUID below with a real ID copied from the GET /posts response
 GET {{BloggingPlatform.API_HostAddress}}/posts/{{testId}}
 Accept: application/json
 
 ###
 
 ### Scenario 13: Get a single post by identifier (Not Found)
-# Verifies that requesting a non-existent GUID returns a clear 404 Not Found status.
+# Verifies that requesting a non-existent GUID returns a clear 404 Not Found status
 GET {{BloggingPlatform.API_HostAddress}}/posts/{{testWrongId}}
 Accept: application/json
 
@@ -111,125 +111,162 @@ Accept: application/json
 
 ### POST /posts
 ### Scenario 14: Create a new blog post (Success)
-# Verifies that POST /posts returns 201 Created and includes the Location header.
+# Verifies that POST /posts returns 201 Created and includes the Location header
 POST {{BloggingPlatform.API_HostAddress}}/posts
 Content-Type: application/json
 
 {
   "title": "Test Post Title",
   "content": "Test Post Content.",
-  "category": "Test"
+  "category": "Test",
+  "tags": ["Tech", "Programming"]
 }
 
 ###
 
 ### Scenario 15: Create a post with invalid data (Validation Failure - Empty Title)
-# Verifies that our [Required] validation rule triggers on empty or whitespace strings.
-# Expects 400 Bad Request with a detailed validation message.
+# Verifies that our [Required] validation rule triggers on empty or whitespace strings
+# Expects 400 Bad Request with a detailed validation message
 POST {{BloggingPlatform.API_HostAddress}}/posts
 Content-Type: application/json
 
 {
   "title": "   ",
   "content": "Valid content length and text.",
-  "category": "Testing"
+  "category": "Testing",
+  "tags": ["Validation"]
 }
 
 ###
 
 ### Scenario 16: Create a post with excessive field length (Validation Failure - Title too long)
-# Verifies that our [StringLength(150)] rule blocks titles that are too long.
-# Expects 400 Bad Request to protect the application layer.
+# Verifies that our [StringLength(150)] rule blocks titles that are too long
+# Expects 400 Bad Request to protect the application layer
 POST {{BloggingPlatform.API_HostAddress}}/posts
 Content-Type: application/json
 
 {
   "title": "This is an extremely long title designed specifically to fail our model validation rules because it contains more than one hundred and fifty characters in total length",
   "content": "Valid content.",
-  "category": "Testing"
+  "category": "Testing",
+  "tags": ["Fail"]
+}
+
+###
+
+### Scenario 17: Create a post with too many tags (Validation Failure - Max 10 tags)
+# Verifies that our [MaxLength(10)] rule blocks requests with more than 10 elements in the tags array
+# Expects 400 Bad Request with a detailed validation message
+POST {{BloggingPlatform.API_HostAddress}}/posts
+Content-Type: application/json
+
+{
+  "title": "Valid Title",
+  "content": "Valid content text.",
+  "category": "Testing",
+  "tags": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11"]
+}
+
+###
+
+### Scenario 18: Create a post with an excessively long tag (Validation Failure - Tag > 20 chars)
+# Verifies that our custom [TagLengthValidator(20)] rule blocks individual tags exceeding 20 characters
+# Expects 400 Bad Request to protect the database layer constraints
+POST {{BloggingPlatform.API_HostAddress}}/posts
+Content-Type: application/json
+
+{
+  "title": "Valid Title",
+  "content": "Valid content text.",
+  "category": "Testing",
+  "tags": ["ValidTag", "ThisTagIsWayTooLongForOurValidation"]
 }
 
 ###
 
 ### PUT /posts/{id}
-### Scenario 17: Update an existing blog post (Success)
-# Verifies that PUT /posts/{id} returns 200 OK and updates fields.
-# Note: Replace the GUID below with a real ID copied from the GET /posts response.
+### Scenario 19: Update an existing blog post (Success)
+# Verifies that PUT /posts/{id} returns 200 OK and updates fields
+# Note: Replace the GUID below with a real ID copied from the GET /posts response
 PUT {{BloggingPlatform.API_HostAddress}}/posts/{{testId}}
 Content-Type: application/json
 
 {
   "title": "Updated Title via PUT",
   "content": "This content has been completely replaced and updated.",
-  "category": "Test"
+  "category": "Test",
+  "tags": ["Updated", "Put"]
 }
 
 ###
 
-### Scenario 18: Update a post that does not exist (Not Found)
-# Verifies that attempting to update a missing GUID returns a 404 Not Found.
+### Scenario 20: Update a post that does not exist (Not Found)
+# Verifies that attempting to update a missing GUID returns a 404 Not Found
 PUT {{BloggingPlatform.API_HostAddress}}/posts/{{testWrongId}}
 Content-Type: application/json
 
 {
   "title": "Valid Title",
   "content": "Valid Content",
-  "category": "Tech"
+  "category": "Tech",
+  "tags": ["Dotnet"]
 }
 
 ###
 
-### Scenario 19: Update a post with invalid data (Validation Failure)
-# Verifies that validation rules still apply during updates.
-# Expects 400 Bad Request due to empty category string.
+### Scenario 21: Update a post with invalid data (Validation Failure)
+# Verifies that validation rules still apply during updates
+# Expects 400 Bad Request due to empty category string
 PUT {{BloggingPlatform.API_HostAddress}}/posts/{{testId}}
 Content-Type: application/json
 
 {
   "title": "Valid Title",
   "content": "Valid Content",
-  "category": ""
+  "category": "",
+  "tags": ["Fail"]
 }
 
 ###
 
 ### DELETE /posts/{id}
-### Scenario 20: Delete an existing blog post (Success)
-# Verifies that DELETE /posts/{id} returns 204 No Content.
-# Note: Replace the GUID below with a real ID copied from the GET /posts response.
+### Scenario 22: Delete an existing blog post (Success)
+# Verifies that DELETE /posts/{id} returns 204 No Content
+# Note: Replace the GUID below with a real ID copied from the GET /posts response
 DELETE {{BloggingPlatform.API_HostAddress}}/posts/{{testId}}
 
 ###
 
-### Scenario 21: Delete a post that does not exist (Not Found)
-# Verifies that attempting to delete a missing GUID returns a 404 Not Found.
+### Scenario 23: Delete a post that does not exist (Not Found)
+# Verifies that attempting to delete a missing GUID returns a 404 Not Found
 DELETE {{BloggingPlatform.API_HostAddress}}/posts/{{testWrongId}}
 
 ###
 
 ### Test Global Exception Handling Middleware
-### Scenario 22: Test Global Exception Handler (Expects 500 Internal Server Error)
+### Scenario 24: Test Global Exception Handler (Expects 500 Internal Server Error)
 # Triggers the artificial DEBUG endpoint to verify that our GlobalExceptionHandler 
-# captures unexpected failures and returns a clean 500 ProblemDetails response.
+# captures unexpected failures and returns a clean 500 ProblemDetails response
 GET {{BloggingPlatform.API_HostAddress}}/posts/test-fault
 Accept: application/json
 
 ###
 
-### Scenario 23: Test Not Found Integrity (Expects 404 Not Found)
-# Verifies that our exception handler doesn't interfere with standard 404 responses.
+### Scenario 25: Test Not Found Integrity (Expects 404 Not Found)
+# Verifies that our exception handler doesn't interfere with standard 404 responses
 GET {{BloggingPlatform.API_HostAddress}}/posts/{{testWrongId}}
 Accept: application/json
 
 ###
 
-### Scenario 24: Test Validation Integrity (Expects 400 Bad Request)
-# Verifies that our exception handler doesn't interfere with standard Model Validation.
+### Scenario 26: Test Validation Integrity (Expects 400 Bad Request)
+# Verifies that our exception handler doesn't interfere with standard Model Validation
 POST {{BloggingPlatform.API_HostAddress}}/posts
 Content-Type: application/json
 
 {
   "title": "",
   "content": "Valid text",
-  "category": "Tech"
+  "category": "Tech",
+  "tags": ["Middleware"]
 }

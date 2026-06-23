@@ -10,24 +10,32 @@ public class PostService(IPostRepository postRepository) : IPostService
         var postEntity = await postRepository.GetByIdNoTrackingAsync(postId); // using GetByIdNoTrackingAsync for read-only operation
         if (postEntity is null) return null;
 
-        return new PostResponseDto(postEntity.Id, postEntity.Title, postEntity.Content, postEntity.Category);
+        return new PostResponseDto(postEntity.Id, postEntity.Title, postEntity.Content, postEntity.Category, postEntity.Tags);
     }
 
     public async Task<PostResponseDto> CreatePostAsync(CreatePostRequestDto createDto)
     {
         var currentDateTime = DateTime.UtcNow;
 
+        // Clean tags from duplicates, empty values, and whitespaces before saving
+        var cleanTags = createDto.Tags
+            .Select(tag => tag.Trim())
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .Distinct()
+            .ToList();
+
         var postEntity = new Models.Post
         {
             Title = createDto.Title,
             Content = createDto.Content,
             Category = createDto.Category,
+            Tags = cleanTags,
             CreatedAt = currentDateTime,
             UpdatedAt = currentDateTime
         };
         var createdPost = await postRepository.CreateAsync(postEntity);
 
-        return new PostResponseDto(createdPost.Id, createdPost.Title, createdPost.Content, createdPost.Category);
+        return new PostResponseDto(createdPost.Id, createdPost.Title, createdPost.Content, createdPost.Category, createdPost.Tags);
     }
 
     public async Task<PostResponseDto?> UpdatePostAsync(Guid postId, UpdatePostRequestDto updateDto)
@@ -35,14 +43,22 @@ public class PostService(IPostRepository postRepository) : IPostService
         var existingEntity = await postRepository.GetByIdAsync(postId);
         if (existingEntity is null) return null; // null for 404 Not Found
 
+        // Clean tags
+        var cleanTags = updateDto.Tags
+            .Select(tag => tag.Trim())
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .Distinct()
+            .ToList();
+
         existingEntity.Title = updateDto.Title;
         existingEntity.Content = updateDto.Content;
         existingEntity.Category = updateDto.Category;
+        existingEntity.Tags = cleanTags;
         existingEntity.UpdatedAt = DateTime.UtcNow;
 
         await postRepository.UpdateAsync(existingEntity);
 
-        return new PostResponseDto(existingEntity.Id, existingEntity.Title, existingEntity.Content, existingEntity.Category);
+        return new PostResponseDto(existingEntity.Id, existingEntity.Title, existingEntity.Content, existingEntity.Category, existingEntity.Tags);
     }
 
     public async Task<bool> DeletePostAsync(Guid postId)
@@ -60,7 +76,7 @@ public class PostService(IPostRepository postRepository) : IPostService
         var (posts, totalCount) = await postRepository.GetPagedListAsync(pageNumber, pageSize, searchTerm);
 
         var postDtosCollection = posts.Select(post =>
-            new PostResponseDto(post.Id, post.Title, post.Content, post.Category))
+            new PostResponseDto(post.Id, post.Title, post.Content, post.Category, post.Tags))
             .ToList(); // packing post entities into PostResponseDto collection
 
         return new PostsPagedResponse(postDtosCollection, totalCount, pageNumber, pageSize);
