@@ -1,5 +1,6 @@
 @BloggingPlatform.API_HostAddress = http://localhost:5104
 
+### GET /posts
 ### Scenario 1: Get the first page with default values
 # Verifies that page=1 and pageSize=10 are applied automatically by our query record.
 # Expects 10 items and metadata indicating TotalCount = 17.
@@ -85,3 +86,61 @@ Accept: application/json
 # Expects a 400 Bad Request with a clear validation error message.
 GET {{BloggingPlatform.API_HostAddress}}/posts?term=ThisIsAnExcessivelyLongSearchTermThatExceedsTheMaximumAllowedLimitOfOneHundredsCharactersToProtectOurDatabaseFromPotentialDenialOfServiceAttacks
 Accept: application/json
+
+###
+
+### GET /posts/{id}
+### Scenario 12: Get a single post by identifier (Success)
+# Verifies that GET /posts/{id} returns 200 OK with correct DTO fields.
+# Note: Replace the GUID below with a real ID copied from the GET /posts response.
+GET {{BloggingPlatform.API_HostAddress}}/posts/6f6e3220-a664-4050-ada0-0daad2ca9ca3
+Accept: application/json
+
+###
+
+### Scenario 13: Get a single post by identifier (Not Found)
+# Verifies that requesting a non-existent GUID returns a clear 404 Not Found status.
+GET {{BloggingPlatform.API_HostAddress}}/posts/ffffffff-ffff-ffff-ffff-ffffffffffff
+Accept: application/json
+
+###
+
+### POST /posts
+### Scenario 14: Create a new blog post (Success)
+# Verifies that POST /posts returns 201 Created and includes the Location header.
+POST {{BloggingPlatform.API_HostAddress}}/posts
+Content-Type: application/json
+
+{
+  "title": "Test Post Title",
+  "content": "Test Post Content.",
+  "category": "Test"
+}
+
+###
+
+### Scenario 15: Create a post with invalid data (Validation Failure - Empty Title)
+# Verifies that our [Required] validation rule triggers on empty or whitespace strings.
+# Expects 400 Bad Request with a detailed validation message.
+POST {{BloggingPlatform.API_HostAddress}}/posts
+Content-Type: application/json
+
+{
+  "title": "   ",
+  "content": "Valid content length and text.",
+  "category": "Testing"
+}
+
+###
+
+### Scenario 16: Create a post with excessive field length (Validation Failure - Title too long)
+# Verifies that our [StringLength(150)] rule blocks titles that are too long.
+# Expects 400 Bad Request to protect the application layer.
+POST {{BloggingPlatform.API_HostAddress}}/posts
+Content-Type: application/json
+
+{
+  "title": "This is an extremely long title designed specifically to fail our model validation rules because it contains more than one hundred and fifty characters in total length",
+  "content": "Valid content.",
+  "category": "Testing"
+}

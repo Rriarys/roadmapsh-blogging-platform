@@ -3,10 +3,15 @@
 namespace BloggingPlatform.API.DTOs;
 
 public record UpdatePostRequestDto(
-    [property: Required(AllowEmptyStrings = false, ErrorMessage = "Title is required and cannot be empty.")]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Title is required.")]
+    [StringLength(150, ErrorMessage = "Title cannot exceed 150 characters.")]
     string Title,
-    [property: Required(AllowEmptyStrings = false, ErrorMessage = "Content is required and cannot be empty.")]
+
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Content is required.")]
+    [StringLength(10000, ErrorMessage = "Content cannot exceed 10000 characters.")]
     string Content,
-    [property: Required(AllowEmptyStrings = false, ErrorMessage = "Category is required and cannot be empty.")]
+
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Category is required.")]
+    [StringLength(50, ErrorMessage = "Category cannot exceed 50 characters.")]
     string Category
 );
