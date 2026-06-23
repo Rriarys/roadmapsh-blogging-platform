@@ -45,11 +45,11 @@ public class PostRepository(BloggingPlatformDbContext dbContext) : IPostReposito
         // If a search term is provided, filter the posts by title, content, or category
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            var lowerSearchTerm = searchTerm.ToLower();
+            var wildcardPattern = $"%{searchTerm}%";
             queryablePosts = queryablePosts.Where(post =>
-                post.Title.ToLower().Contains(lowerSearchTerm) ||
-                post.Content.ToLower().Contains(lowerSearchTerm) ||
-                post.Category.ToLower().Contains(lowerSearchTerm)); // ToLower() - issue for SQLite Db, for other Db not needed
+                    EF.Functions.Like(post.Title, wildcardPattern) ||
+                    EF.Functions.Like(post.Content, wildcardPattern) ||
+                    EF.Functions.Like(post.Category, wildcardPattern));
         }
         // Deterministic ordering for stable paging
         queryablePosts = queryablePosts.OrderBy(post => post.CreatedAt).ThenBy(post => post.Id);

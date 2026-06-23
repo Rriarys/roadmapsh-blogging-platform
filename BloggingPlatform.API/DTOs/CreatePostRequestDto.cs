@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BloggingPlatform.API.DTOs.DtoHelpers;
+using System.ComponentModel.DataAnnotations;
 
 namespace BloggingPlatform.API.DTOs;
 
@@ -13,5 +14,9 @@ public record CreatePostRequestDto(
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "Category is required.")]
     [StringLength(50, ErrorMessage = "Category cannot exceed 50 characters.")]
-    string Category
+    string Category,
+
+    [MaxLength(10, ErrorMessage = "You can add a maximum of 10 tags")]
+    [TagLengthValidator(20, ErrorMessage = "Each tag must be 20 characters or less")]
+    List<string> Tags
 );

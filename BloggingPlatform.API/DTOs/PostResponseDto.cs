@@ -4,5 +4,6 @@ public record PostResponseDto(
     Guid Id,
     string Title,
     string Content,
-    string Category
+    string Category,
+    List<string> Tags
 );
