@@ -1,5 +1,7 @@
 @BloggingPlatform.API_HostAddress = http://localhost:5104
 
+@testId = 4bd6e605-75ad-4e53-827d-3d2b44daf8e7
+
 ### GET /posts
 ### Scenario 1: Get the first page with default values
 # Verifies that page=1 and pageSize=10 are applied automatically by our query record.
@@ -93,7 +95,7 @@ Accept: application/json
 ### Scenario 12: Get a single post by identifier (Success)
 # Verifies that GET /posts/{id} returns 200 OK with correct DTO fields.
 # Note: Replace the GUID below with a real ID copied from the GET /posts response.
-GET {{BloggingPlatform.API_HostAddress}}/posts/6f6e3220-a664-4050-ada0-0daad2ca9ca3
+GET {{BloggingPlatform.API_HostAddress}}/posts/{{testId}}
 Accept: application/json
 
 ###
@@ -144,3 +146,59 @@ Content-Type: application/json
   "content": "Valid content.",
   "category": "Testing"
 }
+
+###
+
+### PUT /posts/{id}
+### Scenario 17: Update an existing blog post (Success)
+# Verifies that PUT /posts/{id} returns 200 OK and updates fields.
+# Note: Replace the GUID below with a real ID copied from the GET /posts response.
+PUT {{BloggingPlatform.API_HostAddress}}/posts/{{testId}}
+Content-Type: application/json
+
+{
+  "title": "Updated Title via PUT",
+  "content": "This content has been completely replaced and updated.",
+  "category": "Test"
+}
+
+###
+
+### Scenario 18: Update a post that does not exist (Not Found)
+# Verifies that attempting to update a missing GUID returns a 404 Not Found.
+PUT {{BloggingPlatform.API_HostAddress}}/posts/ffffffff-ffff-ffff-ffff-ffffffffffff
+Content-Type: application/json
+
+{
+  "title": "Valid Title",
+  "content": "Valid Content",
+  "category": "Tech"
+}
+
+###
+
+### Scenario 19: Update a post with invalid data (Validation Failure)
+# Verifies that validation rules still apply during updates.
+# Expects 400 Bad Request due to empty category string.
+PUT {{BloggingPlatform.API_HostAddress}}/posts/{{testId}}
+Content-Type: application/json
+
+{
+  "title": "Valid Title",
+  "content": "Valid Content",
+  "category": ""
+}
+
+###
+
+### DELETE /posts/{id}
+### Scenario 20: Delete an existing blog post (Success)
+# Verifies that DELETE /posts/{id} returns 204 No Content.
+# Note: Replace the GUID below with a real ID copied from the GET /posts response.
+DELETE {{BloggingPlatform.API_HostAddress}}/posts/{{testId}}
+
+###
+
+### Scenario 21: Delete a post that does not exist (Not Found)
+# Verifies that attempting to delete a missing GUID returns a 404 Not Found.
+DELETE {{BloggingPlatform.API_HostAddress}}/posts/ffffffff-ffff-ffff-ffff-ffffffffffff

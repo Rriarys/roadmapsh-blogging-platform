@@ -7,7 +7,7 @@ public class PostService(IPostRepository postRepository) : IPostService
 {
     public async Task<PostResponseDto?> GetPostByIdAsync(Guid postId)
     {
-        var postEntity = await postRepository.GetByIdAsync(postId);
+        var postEntity = await postRepository.GetByIdNoTrackingAsync(postId); // using GetByIdNoTrackingAsync for read-only operation
         if (postEntity is null) return null;
 
         return new PostResponseDto(postEntity.Id, postEntity.Title, postEntity.Content, postEntity.Category);

@@ -41,4 +41,26 @@ public class PostsController(IPostService postService) : ControllerBase
         // Returns 201 Created with the location of the new resource
         return CreatedAtAction(nameof(GetPostById), new { id = createdPost.Id }, createdPost);
     }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<PostResponseDto>> UpdatePost(Guid id, [FromBody] UpdatePostRequestDto updateDto)
+    {
+        var updatedPost = await postService.UpdatePostAsync(id, updateDto);
+
+        if (updatedPost is null) return NotFound(); // 404 Not Found if the post doesn't exist
+
+        // 200 OK with the updated post data
+        return Ok(updatedPost);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeletePost(Guid id)
+    {
+        var deleted = await postService.DeletePostAsync(id);
+
+        if (!deleted) return NotFound(); // 404 Not Found if the post doesn't exist
+
+        // 204 No Content for successful deletion
+        return NoContent();
+    }
 }

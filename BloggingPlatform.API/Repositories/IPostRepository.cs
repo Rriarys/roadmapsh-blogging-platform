@@ -5,6 +5,7 @@ namespace BloggingPlatform.API.Repositories;
 public interface IPostRepository
 {
     Task<Post?> GetByIdAsync(Guid postId);
+    Task<Post?> GetByIdNoTrackingAsync(Guid postId);
     Task<Post> CreateAsync(Post postEntity);
     Task UpdateAsync(Post postEntity);
     Task DeleteAsync(Post postEntity);

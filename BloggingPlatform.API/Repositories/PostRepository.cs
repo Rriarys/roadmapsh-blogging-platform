@@ -11,6 +11,13 @@ public class PostRepository(BloggingPlatformDbContext dbContext) : IPostReposito
         return await dbContext.Posts.FindAsync(postId);
     }
 
+    public async Task<Post?> GetByIdNoTrackingAsync(Guid postId)
+    {
+        return await dbContext.Posts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(post => post.Id == postId);
+    }
+
     public async Task<Post> CreateAsync(Post postEntity)
     {
         dbContext.Posts.Add(postEntity);
@@ -20,7 +27,6 @@ public class PostRepository(BloggingPlatformDbContext dbContext) : IPostReposito
 
     public async Task UpdateAsync(Post postEntity)
     {
-        dbContext.Posts.Update(postEntity);
         await dbContext.SaveChangesAsync();
     }
 
